@@ -41,7 +41,7 @@ app.use((error, req, res, next) => {
 	});
 });
 
-mongoose.connect(`mongodb+srv://${username}:${password}@arcanite-storage-tmu2x.mongodb.net/test?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true }).then(result => app.listen(port, () => {
+mongoose.connect(`mongodb+srv://${username}:${password}@arcanite-storage-tmu2x.mongodb.net/arcanite?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true }).then(result => app.listen(port, () => {
     console.log(`Running on ${port}`);
 })).catch(err => {
     console.log(err);
