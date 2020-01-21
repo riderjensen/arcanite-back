@@ -23,11 +23,10 @@ app.use((req, res, next) => {
 });
 
 const authRouter = require('./src/routes/auth');
-
 app.use('/auth', authRouter)
 
-app.use(auth);
 
+app.use(auth);
 
 app.use((error, req, res, next) => {
     const errorFile = 'error.txt';
