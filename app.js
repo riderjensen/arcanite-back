@@ -22,11 +22,14 @@ app.use((req, res, next) => {
 	next();
 });
 
+// open auth router early
 const authRouter = require('./src/routes/auth');
 app.use('/auth', authRouter)
-
-
+// check jwt hopefully
 app.use(auth);
+
+// other routes
+
 
 app.use((error, req, res, next) => {
     const errorFile = 'error.txt';
