@@ -3,11 +3,10 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 
-exports.signup = async (req, res, next) => {
+exports.signup = (req, res, next) => {
 	const { email, username, password } = req.body;
-	try {
-		const user = await User.findOne({ username: username });
-		if (user) {
+	User.findOne({ username: username }).then(returnedUser => {
+		if (returnedUser) {
 			res.status(401).send({ message: 'A user with this username already exists!' })
 		}
 		bcrypt.hash(password, bcrypt.genSaltSync(12), null, function (err, hashedPw) {
@@ -27,40 +26,36 @@ exports.signup = async (req, res, next) => {
 				})
 			})
 		})
-
-
-	} catch (err) {
+	}).catch(err => {
 		if (!err.statusCode) {
 			err.statusCode = 500;
 		}
 		next(err);
-	}
-
+	})
 }
 
-exports.login = async (req, res, next) => {
-	const username = req.body.username;
-	const password = req.body.password;
+exports.login = (req, res, next) => {
+	const { username, password } = req.body;
 
-	try {
-		const user = await User.findOne({ username: username });
-		if (!user) {
+	User.findOne({ username: username }).then(returnedUser => {
+		if (!returnedUser) {
 			res.status(401).send({ message: 'A user with this username could not be found!' })
 		}
-		const isEqual = await bcrypt.compare(password, user.password);
-		if (!isEqual) {
-			res.status(401).send({ message: 'Passwords do not match!' })
-		}
-		const token = jwt.sign({
-			username: user.username,
-			userId: user._id.toString()
-		}, 'ZORmyTNgrMCClPb6rPuX', { expiresIn: '1d' });
-		res.status(200).json({ token: token, userId: user._id.toString() });
-	} catch (err) {
+		bcrypt.compare(password, user.password, function(err, isEqual) {
+			if (!isEqual) {
+				res.status(401).send({ message: 'Passwords do not match!' })
+			}
+			jwt.sign({
+				username: user.username,
+				userId: user._id.toString()
+			}, 'ZORmyTNgrMCClPb6rPuX', { expiresIn: '1d' }, function (err, token) {
+				res.status(200).json({ token: token, userId: user._id.toString() });
+			});
+		})
+	}).catch(err => {
 		if (!err.statusCode) {
 			err.statusCode = 500;
 		}
 		next(err);
-	}
-
+	})
 }
