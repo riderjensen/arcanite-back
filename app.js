@@ -29,7 +29,11 @@ app.use('/auth', authRouter)
 app.use(auth);
 
 // other routes
+const postRouter = require('./src/routes/post');
+const commentRouter = require('./src/routes/comment');
 
+app.use('/post', postRouter);
+app.use('/comment', commentRouter);
 
 app.use((error, req, res, next) => {
     const errorFile = 'error.txt';

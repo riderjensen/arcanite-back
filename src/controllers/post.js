@@ -5,8 +5,8 @@ exports.post = (req, res, next) => {
 	const { content, username } = req.body;
 
 	User.findOne({ username: username }).then(returnedUser => {
-		if (returnedUser) {
-			res.status(401).send({ message: 'A user with this username already exists!' })
+		if (!returnedUser) {
+			res.status(401).send({ message: 'No user with this username exists!' })
 		}
 		const post = new Post({
 			content: content,

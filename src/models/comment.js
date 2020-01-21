@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const postSchema = new Schema({
+const commentSchema = new Schema({
 	content: {
 		type: String,
 		required: true
@@ -10,21 +10,16 @@ const postSchema = new Schema({
 		type: String,
 		required: true
 	},
-	comments: {
-		type: Array,
-		required: true,
-		default: []
-	},
 	votes: {
 		type: Number,
 		required: true,
 		default: 0
-	},
-	edited: {
+    },
+    edited: {
 		type: Boolean,
 		required: true,
 		default: false
 	}
 }, { timestamps: true });
 
-module.exports = mongoose.model('Post', postSchema);
+module.exports = mongoose.model('Comment', commentSchema);
