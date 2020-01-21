@@ -22,7 +22,10 @@ exports.signup = (req, res, next) => {
 					userId: result._id.toString()
 				}, 'ZORmyTNgrMCClPb6rPuX', { expiresIn: '1d' }, function(err, token) {
 					if (err) throw err;
-					res.status(201).send({ message: 'User created!', token: token, userId: result._id.toString() })
+					res.status(201).send({ message: 'User created!', token: token, user: { 
+						id: result._id.toString(),
+						username: user.username
+					} })
 				})
 			})
 		})
@@ -49,7 +52,10 @@ exports.login = (req, res, next) => {
 				username: user.username,
 				userId: user._id.toString()
 			}, 'ZORmyTNgrMCClPb6rPuX', { expiresIn: '1d' }, function (err, token) {
-				res.status(200).json({ token: token, userId: user._id.toString() });
+				res.status(200).json({ message: "Logged in!", token: token, user: {
+					id: user._id.toString(),
+					username: user.username
+				} });
 			});
 		})
 	}).catch(err => {
