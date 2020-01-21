@@ -4,6 +4,8 @@ const router = express.Router();
 
 const controller = require('../controllers/post');
 
-router.route('/').post(controller.post);
+router.route('/').get(controller.getPosts);
+router.route('/:id').get(controller.getOnePost);
+router.route('/').post(controller.addPost);
 
 module.exports = router;

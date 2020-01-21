@@ -1,7 +1,8 @@
 const Post = require('../models/post');
 const User = require('../models/user');
+const Comment = require('../models/comment');
 
-exports.post = (req, res, next) => {
+exports.addPost = (req, res, next) => {
 	const { content, username } = req.body;
 
 	User.findOne({ username: username }).then(returnedUser => {
@@ -17,9 +18,28 @@ exports.post = (req, res, next) => {
 			res.status(201).send({ message: 'Post created!' })
 		})
 	}).catch(err => {
-		if (!err.statusCode) {
-			err.statusCode = 500;
-		}
 		next(err);
 	});
+}
+
+exports.getPosts = (req, res, next) => {
+	Post.find().sort({createdAt: -1}).limit(20).then(posts => {
+		res.status(200).send(posts)
+	}).catch(err => {
+		next(err);
+	})
+}
+
+exports.getOnePost = (req, res, next) => {
+	const id = req.params.id;
+	Post.findById(id).then(post => {
+		Comment.find({
+			'_id': { $in: post.comments}
+		}).then(comments => {
+			res.status(200).send({
+				post: post,
+				comments: comments
+			})
+		})
+	})
 }
