@@ -22,7 +22,7 @@ exports.signup = (req, res, next) => {
 					userId: result._id.toString()
 				}, 'ZORmyTNgrMCClPb6rPuX', { expiresIn: '1d' }, function(err, token) {
 					if (err) throw err;
-					res.status(201).send({ message: 'User created!', token: token, userId: result._id })
+					res.status(201).send({ message: 'User created!', token: token, userId: result._id.toString() })
 				})
 			})
 		})
