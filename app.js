@@ -1,4 +1,5 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const fs = require('fs');
 
@@ -10,6 +11,7 @@ const auth = require('./middleware/auth');
 
 const app = express();
 
+app.use(bodyParser.json());
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
@@ -20,18 +22,21 @@ app.use((req, res, next) => {
 	next();
 });
 
+const authRouter = require('./src/routes/auth');
+
+app.use('/auth', authRouter)
+
 app.use(auth);
 
 
 app.use((error, req, res, next) => {
     const errorFile = 'error.txt';
 	const status = error.stausCode || 500;
-	const message = error.message;
     const data = error.data;
 
-    fs.appendFile(errorFile, `${message}\r\n`, console.log('Error written'))
-	res.status(status).json({
-		message: message,
+    fs.appendFile(errorFile, `${error}\r\n`, () => {console.log('Error written')})
+	res.status(status).send({
+		message: error,
 		data: data
 	});
 });

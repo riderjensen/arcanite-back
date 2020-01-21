@@ -1,27 +1,34 @@
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt-nodejs');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 
 exports.signup = async (req, res, next) => {
-	const email = req.body.email;
-	const username = req.body.username;
-	const password = req.body.password;
+	const { email, username, password } = req.body;
 	try {
-		const hashedPw = await bcrypt.hash(password, 12)
-
-		const user = new User({
-			email: email,
-			password: hashedPw,
-			username: username
-		});
-		user.save().then(result => {
-			const token = jwt.sign({
-				username: user.username,
-				userId: result._id.toString()
-			}, 'ZORmyTNgrMCClPb6rPuX', { expiresIn: '1d' });
-			res.status(201).json({ message: 'User created!', token: token, userId: result._id })
+		const user = await User.findOne({ username: username });
+		if (user) {
+			res.status(401).send({ message: 'A user with this username already exists!' })
+		}
+		bcrypt.hash(password, bcrypt.genSaltSync(12), null, function (err, hashedPw) {
+			if (err) throw err;
+			const user = new User({
+				email: email,
+				password: hashedPw,
+				username: username
+			});
+			user.save().then(result => {
+				jwt.sign({
+					username: user.username,
+					userId: result._id.toString()
+				}, 'ZORmyTNgrMCClPb6rPuX', { expiresIn: '1d' }, function(err, token) {
+					if (err) throw err;
+					res.status(201).send({ message: 'User created!', token: token, userId: result._id })
+				})
+			})
 		})
+
+
 	} catch (err) {
 		if (!err.statusCode) {
 			err.statusCode = 500;
@@ -38,15 +45,11 @@ exports.login = async (req, res, next) => {
 	try {
 		const user = await User.findOne({ username: username });
 		if (!user) {
-			const error = new Error('A user with this username could not be found');
-			error.statusCode = 401;
-			throw error;
+			res.status(401).send({ message: 'A user with this username could not be found!' })
 		}
 		const isEqual = await bcrypt.compare(password, user.password);
 		if (!isEqual) {
-			const error = new Error('Wrong password');
-			error.statusCode = 401;
-			throw error;
+			res.status(401).send({ message: 'Passwords do not match!' })
 		}
 		const token = jwt.sign({
 			username: user.username,
