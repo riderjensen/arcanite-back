@@ -19,6 +19,11 @@ const commentSchema = new Schema({
 		type: Boolean,
 		required: true,
 		default: false
+	},
+	type: {
+		type: String,
+		required: true,
+		default: "comment"
 	}
 }, { timestamps: true });
 
