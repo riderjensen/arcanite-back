@@ -1,7 +1,7 @@
 const Comment = require('../models/comment');
 const Post = require('../models/post');
 
-exports.post = (req, res, next) => {
+exports.comment = (req, res, next) => {
 	const { postId, username, content } = req.body;
 
 	Post.findById({ postId }).then(returnedPost => {
