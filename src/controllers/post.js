@@ -2,6 +2,8 @@ const Post = require('../models/post');
 const User = require('../models/user');
 const Comment = require('../models/comment');
 
+const mongoose = require('mongoose');
+
 exports.addPost = (req, res, next) => {
 	const { content, username } = req.body;
 
@@ -32,14 +34,18 @@ exports.getPosts = (req, res, next) => {
 
 exports.getOnePost = (req, res, next) => {
 	const id = req.params.id;
-	Post.findById(id).then(post => {
-		Comment.find({
-			'_id': { $in: post.comments}
-		}).then(comments => {
-			res.status(200).send({
-				post: post,
-				comments: comments
+	if (mongoose.Types.ObjectId.isValid(id)) {
+		Post.findById(id).then(post => {
+			Comment.find({
+				'_id': { $in: post.comments}
+			}).then(comments => {
+				res.status(200).send({
+					post: post,
+					comments: comments
+				})
 			})
 		})
-	})
+	} else {
+		res.status(404).send({ error: true, message: 'Invalid ID' })
+	}
 }
