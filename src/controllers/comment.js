@@ -51,3 +51,31 @@ exports.voteComment = (req, res, next) => {
 		res.status(404).send({ error: true, message: 'Invalid ID' })
 	}
 }
+
+exports.editComment = (req, res, next) => {
+	const id = req.params.id;
+	const { content } = req.body;
+
+	if (!content) {
+		return res.status(401).send({ error: true, requiredAttributes: {
+			contentPresent: content !== undefined ? true : false
+		}, message: 'Missing required attributes' });
+	}
+
+	if (mongoose.Types.ObjectId.isValid(id)) {
+		Comment.findById(id).then(comment => {
+			if (!comment) {
+				return res.status(404).json({ error: true, message: 'Could not find the comment'})
+			}
+			comment.edited = true;
+			comment.content = content;
+			comment.save().then(_ => {
+				res.status(201).send({ message: "Comment edited!" })
+			})
+		}).catch(err => {
+			next(err);
+		})
+	} else {
+		res.status(404).send({ error: true, message: 'Invalid ID' })
+	}
+}
