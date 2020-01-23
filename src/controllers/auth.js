@@ -47,24 +47,27 @@ exports.login = (req, res, next) => {
 	const { username, password } = req.body;
 
 	if (!username || !password) {
-		return res.status(401).send({ error: true, message: 'A username and password are required to log in!' });
+		return res.status(401).send({ error: true, requiredAttributes: {
+			usernamePresent: username !== undefined ? true : false,
+			passwordPresent: password !== undefined ? true : false
+		}, message: 'Missing required attributes' });
 	}
 
 	User.findOne({ username: username }).then(returnedUser => {
 		if (!returnedUser) {
 			return res.status(401).send({ message: 'A user with this username could not be found!' })
 		}
-		bcrypt.compare(password, user.password, function(err, isEqual) {
+		bcrypt.compare(password, returnedUser.password, function(err, isEqual) {
 			if (!isEqual) {
 				return res.status(401).send({ message: 'Passwords do not match!' })
 			}
 			jwt.sign({
-				username: user.username,
-				userId: user._id.toString()
+				username: returnedUser.username,
+				userId: returnedUser._id.toString()
 			}, 'ZORmyTNgrMCClPb6rPuX', { expiresIn: '1d' }, function (err, token) {
 				res.status(200).json({ message: "Logged in!", token: token, user: {
-					id: user._id.toString(),
-					username: user.username
+					id: returnedUser._id.toString(),
+					username: returnedUser.username
 				} });
 			});
 		})
