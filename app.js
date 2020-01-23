@@ -25,6 +25,11 @@ app.use((req, res, next) => {
 // open auth router early
 const authRouter = require('./src/routes/auth');
 app.use('/auth', authRouter);
+
+// open unprotected routes
+const openRouter = require('./src/routes/openRoutes');
+app.use('/a', openRouter);
+
 // check jwt hopefully
 app.use(auth);
 
@@ -32,8 +37,8 @@ app.use(auth);
 const postRouter = require('./src/routes/post');
 const commentRouter = require('./src/routes/comment');
 
-app.use('/post', postRouter);
-app.use('/comment', commentRouter);
+app.use('/p', postRouter);
+app.use('/c', commentRouter);
 
 app.use((error, req, res, next) => {
     const errorFile = 'error.txt';
