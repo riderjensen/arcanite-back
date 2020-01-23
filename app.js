@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 
 // open auth router early
 const authRouter = require('./src/routes/auth');
-app.use('/auth', authRouter)
+app.use('/auth', authRouter);
 // check jwt hopefully
 app.use(auth);
 

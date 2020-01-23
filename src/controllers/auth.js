@@ -5,9 +5,18 @@ const User = require('../models/user');
 
 exports.signup = (req, res, next) => {
 	const { email, username, password } = req.body;
+
+	if (!email || !username || !password) {
+		return res.status(401).send({ error: true, requiredAttributes: {
+			emailPresent: email !== undefined ? true : false,
+			usernamePresent: username !== undefined ? true : false,
+			passwordPresent: password !== undefined ? true : false
+		}, message: 'Missing required attributes' });
+	}
+	// add in password validation
 	User.findOne({ username: username }).then(returnedUser => {
 		if (returnedUser) {
-			res.status(401).send({ message: 'A user with this username already exists!' })
+			return res.status(401).send({ message: 'A user with this username already exists!' });
 		}
 		bcrypt.hash(password, bcrypt.genSaltSync(12), null, function (err, hashedPw) {
 			if (err) throw err;
@@ -37,13 +46,17 @@ exports.signup = (req, res, next) => {
 exports.login = (req, res, next) => {
 	const { username, password } = req.body;
 
+	if (!username || !password) {
+		return res.status(401).send({ error: true, message: 'A username and password are required to log in!' });
+	}
+
 	User.findOne({ username: username }).then(returnedUser => {
 		if (!returnedUser) {
-			res.status(401).send({ message: 'A user with this username could not be found!' })
+			return res.status(401).send({ message: 'A user with this username could not be found!' })
 		}
 		bcrypt.compare(password, user.password, function(err, isEqual) {
 			if (!isEqual) {
-				res.status(401).send({ message: 'Passwords do not match!' })
+				return res.status(401).send({ message: 'Passwords do not match!' })
 			}
 			jwt.sign({
 				username: user.username,
@@ -57,5 +70,27 @@ exports.login = (req, res, next) => {
 		})
 	}).catch(err => {
 		next(err);
+	})
+}
+
+exports.instructions = (req, res, next) => {
+	res.status(200).json({
+		instructions: {
+			loggingIn: {
+				requestType: "post",
+				parameters: {
+					username: "string",
+					password: "string"
+				}
+			},
+			signingUp : {
+				requestType: "post",
+				parameters: {
+					username: "string",
+					password: "string",
+					email: "string"
+				}
+			}
+		}
 	})
 }
