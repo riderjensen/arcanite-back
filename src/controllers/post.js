@@ -6,10 +6,17 @@ const mongoose = require('mongoose');
 
 exports.addPost = (req, res, next) => {
 	const { content, username } = req.body;
+	
+	if (!content || !username) {
+		return res.status(401).send({ error: true, requiredAttributes: {
+			usernamePresent: username !== undefined ? true : false,
+			passwordPresent: password !== undefined ? true : false
+		}, message: 'Missing required attributes' });
+	}
 
 	User.findOne({ username: username }).then(returnedUser => {
 		if (!returnedUser) {
-			res.status(401).send({ message: 'No user with this username exists!' })
+			res.status(401).send({ error: true, message: 'No user with this username exists!' })
 		}
 		const post = new Post({
 			content: content,
