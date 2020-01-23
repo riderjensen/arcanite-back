@@ -23,7 +23,7 @@ exports.comment = (req, res, next) => {
 			});
 	
 			comment.save().then(returnedComment => {
-				returnedPost.comments.push(returnedComment._id)
+				returnedPost.comments.push(mongoose.Types.ObjectId(returnedComment._id))
 				returnedPost.save().then(savedPost => {
 					res.status(201).send({ message: 'Comment created!' });
 				})
