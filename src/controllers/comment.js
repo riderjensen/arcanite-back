@@ -35,3 +35,19 @@ exports.comment = (req, res, next) => {
 		res.status(404).send({ error: true, message: 'Invalid ID' })
 	}
 }
+
+exports.voteComment = (req, res, next) => {
+	const id = req.params.id;
+	if (mongoose.Types.ObjectId.isValid(id)) {
+		Comment.findById(id).then(comment => {
+			comment.votes++;
+			comment.save().then(_ => {
+				res.status(200).send({ comment })
+			})
+		}).catch(err => {
+			next(err);
+		})
+	} else {
+		res.status(404).send({ error: true, message: 'Invalid ID' })
+	}
+}
