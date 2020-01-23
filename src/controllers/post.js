@@ -33,7 +33,10 @@ exports.addPost = (req, res, next) => {
 
 exports.getPosts = (req, res, next) => {
 	Post.find().sort({createdAt: -1}).limit(20).then(posts => {
-		res.status(200).send(posts)
+		if (!posts) {
+			return res.status(404).json({ error: true, message: 'Could not find the posts'})
+		}
+		res.status(200).send(posts);
 	}).catch(err => {
 		next(err);
 	})
@@ -43,6 +46,9 @@ exports.getOnePost = (req, res, next) => {
 	const id = req.params.id;
 	if (mongoose.Types.ObjectId.isValid(id)) {
 		Post.findById(id).populate('comments').then(post => {
+			if (!post) {
+				return res.status(404).json({ error: true, message: 'Could not find the post'})
+			}
 			res.status(200).send({ post })
 		})
 	} else {
@@ -54,6 +60,9 @@ exports.votePost = (req, res, next) => {
 	const id = req.params.id;
 	if (mongoose.Types.ObjectId.isValid(id)) {
 		Post.findById(id).then(post => {
+			if (!post) {
+				return res.status(404).json({ error: true, message: 'Could not find the post'})
+			}
 			post.votes++;
 			post.save().then(_ => {
 				res.status(200).send({ post })
@@ -72,6 +81,9 @@ exports.editPost = (req, res, next) => {
 
 	if (mongoose.Types.ObjectId.isValid(id)) {
 		Post.findById(id).then(post => {
+			if (!post) {
+				return res.status(404).json({ error: true, message: 'Could not find the post'})
+			}
 			post.edited = true;
 			post.content = content;
 			post.save().then(_ => {
