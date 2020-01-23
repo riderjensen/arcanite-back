@@ -10,7 +10,7 @@ exports.addPost = (req, res, next) => {
 	if (!content || !username) {
 		return res.status(401).send({ error: true, requiredAttributes: {
 			usernamePresent: username !== undefined ? true : false,
-			passwordPresent: password !== undefined ? true : false
+			contentPresent: content !== undefined ? true : false
 		}, message: 'Missing required attributes' });
 	}
 
@@ -58,6 +58,7 @@ exports.getOnePost = (req, res, next) => {
 
 exports.votePost = (req, res, next) => {
 	const id = req.params.id;
+
 	if (mongoose.Types.ObjectId.isValid(id)) {
 		Post.findById(id).then(post => {
 			if (!post) {
