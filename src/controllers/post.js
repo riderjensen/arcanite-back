@@ -96,3 +96,20 @@ exports.editPost = (req, res, next) => {
 		res.status(404).send({ error: true, message: 'Invalid ID' })
 	}
 }
+
+exports.deletePost = (req, res, next) => {
+	const id = req.params.id;
+
+	if (mongoose.Types.ObjectId.isValid(id)) {
+		Post.findByIdAndRemove(id).then(post => {
+			if (!post) {
+				return res.status(404).json({ error: true, message: 'Could not find the post'})
+			}
+			res.status(201).json({ message: 'Post deleted' })
+		}).catch(err => {
+			next(err);
+		})
+	} else {
+		res.status(404).send({ error: true, message: 'Invalid ID' })
+	}
+}
