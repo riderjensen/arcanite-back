@@ -79,3 +79,20 @@ exports.editComment = (req, res, next) => {
 		res.status(404).send({ error: true, message: 'Invalid ID' })
 	}
 }
+
+exports.deleteComment = (req, res, next) => {
+	const id = req.params.id;
+
+	if (mongoose.Types.ObjectId.isValid(id)) {
+		Comment.findByIdAndRemove(id).then(comment => {
+			if (!comment) {
+				return res.status(404).json({ error: true, message: 'Could not find the comment'})
+			}
+			res.status(201).json({ message: 'Comment deleted' })
+		}).catch(err => {
+			next(err);
+		})
+	} else {
+		res.status(404).send({ error: true, message: 'Invalid ID' })
+	}
+}
