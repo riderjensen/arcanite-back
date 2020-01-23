@@ -9,5 +9,6 @@ router.route('/').post(controller.addPost);
 
 router.route('/:id').get(controller.getOnePost);
 router.route('/:id').post(controller.votePost);
+router.route('/:id').patch(controller.editPost);
 
 module.exports = router;

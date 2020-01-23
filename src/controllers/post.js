@@ -65,3 +65,22 @@ exports.votePost = (req, res, next) => {
 		res.status(404).send({ error: true, message: 'Invalid ID' })
 	}
 }
+
+exports.editPost = (req, res, next) => {
+	const id = req.params.id;
+	const { content } = req.body;
+
+	if (mongoose.Types.ObjectId.isValid(id)) {
+		Post.findById(id).then(post => {
+			post.edited = true;
+			post.content = content;
+			post.save().then(_ => {
+				res.status(201).send({ message: "Post edited!" })
+			})
+		}).catch(err => {
+			next(err);
+		})
+	} else {
+		res.status(404).send({ error: true, message: 'Invalid ID' })
+	}
+}
