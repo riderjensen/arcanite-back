@@ -16,7 +16,7 @@ exports.signup = (req, res, next) => {
 	// add in password validation
 	User.findOne({ username: username }).then(returnedUser => {
 		if (returnedUser) {
-			return res.status(401).send({ message: 'A user with this username already exists!' });
+			return res.status(401).send({ error: true, message: 'A user with this username already exists!' });
 		}
 		bcrypt.hash(password, bcrypt.genSaltSync(12), null, function (err, hashedPw) {
 			if (err) throw err;
@@ -55,11 +55,11 @@ exports.login = (req, res, next) => {
 
 	User.findOne({ username: username }).then(returnedUser => {
 		if (!returnedUser) {
-			return res.status(401).send({ message: 'A user with this username could not be found!' })
+			return res.status(401).send({ error: true, message: 'A user with this username could not be found!' })
 		}
 		bcrypt.compare(password, returnedUser.password, function(err, isEqual) {
 			if (!isEqual) {
-				return res.status(401).send({ message: 'Passwords do not match!' })
+				return res.status(401).send({ error: true, message: 'Passwords do not match!' })
 			}
 			jwt.sign({
 				username: returnedUser.username,
