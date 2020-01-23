@@ -19,7 +19,8 @@ exports.comment = (req, res, next) => {
 			}
 			const comment = new Comment({
 				content: content,
-				user: username
+				user: username,
+				parent: postId
 			});
 	
 			comment.save().then(returnedComment => {
@@ -84,11 +85,17 @@ exports.deleteComment = (req, res, next) => {
 	const id = req.params.id;
 
 	if (mongoose.Types.ObjectId.isValid(id)) {
-		Comment.findByIdAndRemove(id).then(comment => {
+		Comment.findByIdAndDelete(id).then(comment => {
 			if (!comment) {
 				return res.status(404).json({ error: true, message: 'Could not find the comment'})
 			}
-			res.status(201).json({ message: 'Comment deleted' })
+			Post.findOne(comment.parent).then(post => {
+				const index = post.comments.indexOf(comment.parent);
+				post.comments.splice(index, 1);
+				post.save().then(_ => {
+					res.status(201).json({ message: 'Comment deleted' })
+				})
+			})
 		}).catch(err => {
 			next(err);
 		})
