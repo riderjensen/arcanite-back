@@ -42,15 +42,24 @@ exports.getPosts = (req, res, next) => {
 exports.getOnePost = (req, res, next) => {
 	const id = req.params.id;
 	if (mongoose.Types.ObjectId.isValid(id)) {
+		Post.findById(id).populate('comments').then(post => {
+			res.status(200).send({ post })
+		})
+	} else {
+		res.status(404).send({ error: true, message: 'Invalid ID' })
+	}
+}
+
+exports.votePost = (req, res, next) => {
+	const id = req.params.id;
+	if (mongoose.Types.ObjectId.isValid(id)) {
 		Post.findById(id).then(post => {
-			Comment.find({
-				'_id': { $in: post.comments}
-			}).then(comments => {
-				res.status(200).send({
-					post: post,
-					comments: comments
-				})
+			post.votes++;
+			post.save().then(_ => {
+				res.status(200).send({ post })
 			})
+		}).catch(err => {
+			next(err);
 		})
 	} else {
 		res.status(404).send({ error: true, message: 'Invalid ID' })

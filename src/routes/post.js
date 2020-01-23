@@ -5,7 +5,9 @@ const router = express.Router();
 const controller = require('../controllers/post');
 
 router.route('/').get(controller.getPosts);
-router.route('/:id').get(controller.getOnePost);
 router.route('/').post(controller.addPost);
+
+router.route('/:id').get(controller.getOnePost);
+router.route('/:id').post(controller.votePost);
 
 module.exports = router;

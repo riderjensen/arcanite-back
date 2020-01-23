@@ -10,11 +10,7 @@ const postSchema = new Schema({
 		type: String,
 		required: true
 	},
-	comments: {
-		type: Array,
-		required: true,
-		default: []
-	},
+	comments: [{ type: Schema.ObjectId, ref: 'Comment' }],
 	votes: {
 		type: Number,
 		required: true,
