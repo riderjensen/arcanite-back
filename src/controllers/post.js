@@ -101,11 +101,14 @@ exports.deletePost = (req, res, next) => {
 	const id = req.params.id;
 
 	if (mongoose.Types.ObjectId.isValid(id)) {
-		Post.findByIdAndRemove(id).then(post => {
+		Post.findById(id).then(post => {
 			if (!post) {
 				return res.status(404).json({ error: true, message: 'Could not find the post'})
 			}
-			res.status(201).json({ message: 'Post deleted' })
+			post.content = 'Content deleted by User';
+			post.save().then(_ => {
+				res.status(201).json({ message: 'Post deleted' })
+			})
 		}).catch(err => {
 			next(err);
 		})
