@@ -16,6 +16,7 @@ module.exports = (req, res, next) => {
 			return res.status(401).json({ error: true, message: 'Decoded token invalid' })
 		}
 		req.userId = decodedToken.userId;
+		req.username = decodedToken.username;
 		req.isAuth = true;
 		next();
 	})
