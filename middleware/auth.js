@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
 	jwt.verify(authHeader, 'ZORmyTNgrMCClPb6rPuX', function(err, decodedToken) {
 		if (err) {
 			req.isAuth = false;
-			return res.status(401).json({ error: true, message: 'Error decoding token' })
+			return res.status(401).json({ error: true, message: 'Error decoding token, try logging in again' })
 		}
 		if (!decodedToken) {
 			req.isAuth = false;
