@@ -27,7 +27,7 @@ exports.signup = (req, res, next) => {
 				password: hashedPw,
 				username: username
 			});
-			user.save().then(returnedUser => {
+			user.save().then( async (returnedUser) => {
 				const authenticationToken = await createAuthenticateToken(returnedUser);
 				res.status(200).json({ 
 					message: "Logged in!", 
@@ -44,7 +44,7 @@ exports.signup = (req, res, next) => {
 	})
 }
 
-exports.login = async (req, res, next) => {
+exports.login = (req, res, next) => {
 	const { username, password } = req.body;
 
 	if (!username || !password) {
@@ -58,7 +58,7 @@ exports.login = async (req, res, next) => {
 		if (!returnedUser) {
 			return res.status(401).send({ error: true, message: 'A user with this username could not be found!' })
 		}
-		bcrypt.compare(password, returnedUser.password, function(err, isEqual) {
+		bcrypt.compare(password, returnedUser.password, async function(err, isEqual) {
 			if (!isEqual) {
 				return res.status(401).send({ error: true, message: 'Passwords do not match!' })
 			}
