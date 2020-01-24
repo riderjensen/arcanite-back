@@ -20,10 +20,11 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use((req, res, next) => {
+	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 	if (req.method === 'OPTIONS') {
-		return res.sendStatus(200);
+		return res.status(200);
 	}
 	next();
 });
@@ -34,11 +35,9 @@ const postRouter = require('./src/routes/post');
 const commentRouter = require('./src/routes/comment');
 const openRouter = require('./src/routes/openRoutes');
 
-
 app.use('/auth', authRouter);
 app.use('/a', openRouter);
 
-// check jwt hopefully
 app.use(auth);
 
 app.use('/p', postRouter);
