@@ -30,18 +30,16 @@ app.use((req, res, next) => {
 
 // open auth router early
 const authRouter = require('./src/routes/auth');
-app.use('/auth', authRouter);
-
-// open unprotected routes
+const postRouter = require('./src/routes/post');
+const commentRouter = require('./src/routes/comment');
 const openRouter = require('./src/routes/openRoutes');
+
+
+app.use('/auth', authRouter);
 app.use('/a', openRouter);
 
 // check jwt hopefully
 app.use(auth);
-
-// other routes
-const postRouter = require('./src/routes/post');
-const commentRouter = require('./src/routes/comment');
 
 app.use('/p', postRouter);
 app.use('/c', commentRouter);
