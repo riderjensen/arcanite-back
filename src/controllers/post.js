@@ -88,7 +88,9 @@ exports.editPost = (req, res, next) => {
 			if (!post) {
 				return res.status(404).json({ error: true, message: 'Could not find the post'})
 			}
-			checkAuth(res, post.username, username)
+			if (post.username !== username) {
+				return res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
+			}
 			post.edited = true;
 			post.content = content;
 			post.save().then(_ => {
@@ -111,7 +113,9 @@ exports.deletePost = (req, res, next) => {
 			if (!post) {
 				return res.status(404).json({ error: true, message: 'Could not find the post'})
 			}
-			checkAuth(res, post.username, username)
+			if (post.username !== username) {
+				return res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
+			}
 			post.content = 'Content deleted by User';
 			post.save().then(_ => {
 				res.status(201).json({ message: 'Post deleted' })
@@ -121,11 +125,5 @@ exports.deletePost = (req, res, next) => {
 		})
 	} else {
 		res.status(404).send({ error: true, message: 'Invalid ID' })
-	}
-}
-
-function checkAuth(res, foundProperty, username) {
-	if (foundProperty !== username) {
-		res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
 	}
 }

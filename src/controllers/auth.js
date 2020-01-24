@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 
-const env = require('../../../env');
+const { jwtsecret } = require('../../../env').env;
 
 exports.signup = (req, res, next) => {
 	const { email, username, password } = req.body;
@@ -103,9 +103,5 @@ function createAuthenticateToken(returnedUser) {
 	return jwt.sign({
 		username: returnedUser.username,
 		userId: returnedUser._id.toString()
-	}, env.jwtsecret, { 
-		expiresIn: '1d',
-		algorithm: 'HS256',
-
-	});
+	}, jwtsecret, { expiresIn: '1d' });
 }
