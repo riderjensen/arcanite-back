@@ -4,7 +4,8 @@ const Post = require('../models/post');
 const mongoose = require('mongoose');
 
 exports.comment = (req, res, next) => {
-	const { postId, username, content } = req.body;
+	const { username } = req;
+	const { postId, content } = req.body;
 	if (!postId || !username || !content) {
 		return res.status(401).send({ error: true, requiredAttributes: {
 			postIdPresent: postId !== undefined ? true : false,
