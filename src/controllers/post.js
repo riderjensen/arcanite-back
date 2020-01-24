@@ -45,6 +45,7 @@ exports.getPosts = (req, res, next) => {
 
 exports.getOnePost = (req, res, next) => {
 	const id = req.params.id;
+	
 	if (mongoose.Types.ObjectId.isValid(id)) {
 		Post.findById(id).populate('comments').then(post => {
 			if (!post) {
@@ -78,6 +79,7 @@ exports.votePost = (req, res, next) => {
 }
 
 exports.editPost = (req, res, next) => {
+	const { username } = req;
 	const id = req.params.id;
 	const { content } = req.body;
 
@@ -86,6 +88,7 @@ exports.editPost = (req, res, next) => {
 			if (!post) {
 				return res.status(404).json({ error: true, message: 'Could not find the post'})
 			}
+			checkAuth(res, post.username, username)
 			post.edited = true;
 			post.content = content;
 			post.save().then(_ => {
@@ -100,6 +103,7 @@ exports.editPost = (req, res, next) => {
 }
 
 exports.deletePost = (req, res, next) => {
+	const { username } = req;
 	const id = req.params.id;
 
 	if (mongoose.Types.ObjectId.isValid(id)) {
@@ -107,6 +111,7 @@ exports.deletePost = (req, res, next) => {
 			if (!post) {
 				return res.status(404).json({ error: true, message: 'Could not find the post'})
 			}
+			checkAuth(res, post.username, username)
 			post.content = 'Content deleted by User';
 			post.save().then(_ => {
 				res.status(201).json({ message: 'Post deleted' })
@@ -116,5 +121,11 @@ exports.deletePost = (req, res, next) => {
 		})
 	} else {
 		res.status(404).send({ error: true, message: 'Invalid ID' })
+	}
+}
+
+function checkAuth(res, foundProperty, username) {
+	if (foundProperty !== username) {
+		res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
 	}
 }

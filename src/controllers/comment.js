@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 exports.comment = (req, res, next) => {
 	const { username } = req;
 	const { postId, content } = req.body;
+	
 	if (!postId || !username || !content) {
 		return res.status(401).send({ error: true, requiredAttributes: {
 			postIdPresent: postId !== undefined ? true : false,
@@ -18,9 +19,7 @@ exports.comment = (req, res, next) => {
 			if (!returnedPost) {
 				res.status(401).send({ error: true, message: 'There is no post related to that ID!' })
 			}
-			if (returnedPost.user !== username) {
-				res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
-			}
+			checkAuth(res, returnedPost.user, username)
 			const comment = new Comment({
 				content: content,
 				user: username,
@@ -43,6 +42,7 @@ exports.comment = (req, res, next) => {
 
 exports.voteComment = (req, res, next) => {
 	const id = req.params.id;
+
 	if (mongoose.Types.ObjectId.isValid(id)) {
 		Comment.findById(id).then(comment => {
 			comment.votes++;
@@ -59,8 +59,8 @@ exports.voteComment = (req, res, next) => {
 
 exports.editComment = (req, res, next) => {
 	const { username } = req;
-	const id = req.params.id;
 	const { content } = req.body;
+	const id = req.params.id;
 
 	if (!content) {
 		return res.status(401).send({ error: true, requiredAttributes: {
@@ -73,9 +73,7 @@ exports.editComment = (req, res, next) => {
 			if (!comment) {
 				return res.status(404).json({ error: true, message: 'Could not find the comment'})
 			}
-			if (comment.user !== username) {
-				res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
-			}
+			checkAuth(res, comment.user, username)
 			comment.edited = true;
 			comment.content = content;
 			comment.save().then(_ => {
@@ -102,9 +100,7 @@ exports.deleteComment = (req, res, next) => {
 			if (!comment) {
 				return res.status(404).json({ error: true, message: 'Could not find the comment'})
 			}
-			if (comment.user !== username) {
-				res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
-			}
+			checkAuth(res, comment.user, username)
 			Comment.findByIdAndDelete(id).then(comment => {
 				Post.findOne(comment.parent).then(post => {
 					const index = post.comments.indexOf(comment.parent);
@@ -119,5 +115,11 @@ exports.deleteComment = (req, res, next) => {
 		})
 	} else {
 		res.status(404).send({ error: true, message: 'Invalid ID' })
+	}
+}
+
+function checkAuth(res, foundProperty, username) {
+	if (foundProperty !== username) {
+		res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
 	}
 }
