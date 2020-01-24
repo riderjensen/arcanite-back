@@ -32,7 +32,8 @@ exports.signup = (req, res, next) => {
 				const authenticationToken = await createAuthenticateToken(returnedUser);
 				res.status(200).json({ 
 					message: "Logged in!", 
-					token: authenticationToken
+					token: authenticationToken,
+					user: username
 				});
 			})
 		})
@@ -62,7 +63,8 @@ exports.login = (req, res, next) => {
 			const authenticationToken = await createAuthenticateToken(returnedUser);
 			res.status(200).json({ 
 				message: "Logged in!", 
-				token: authenticationToken
+				token: authenticationToken,
+				user: username
 			});
 		})
 	}).catch(err => {
