@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 
+const env = require('../../../env');
+
 exports.signup = (req, res, next) => {
 	const { email, username, password } = req.body;
 
@@ -25,17 +27,16 @@ exports.signup = (req, res, next) => {
 				password: hashedPw,
 				username: username
 			});
-			user.save().then(result => {
-				jwt.sign({
-					username: user.username,
-					userId: result._id.toString()
-				}, 'ZORmyTNgrMCClPb6rPuX', { expiresIn: '1d' }, function(err, token) {
-					if (err) throw err;
-					res.status(201).send({ message: 'User created!', token: token, user: { 
-						id: result._id.toString(),
-						username: user.username
-					} })
-				})
+			user.save().then(returnedUser => {
+				const authenticationToken = await createAuthenticateToken(returnedUser);
+				res.status(200).json({ 
+					message: "Logged in!", 
+					token: authenticationToken, 
+					user: {
+						id: returnedUser._id.toString(),
+						username: returnedUser.username
+					}
+				});
 			})
 		})
 	}).catch(err => {
@@ -43,7 +44,7 @@ exports.signup = (req, res, next) => {
 	})
 }
 
-exports.login = (req, res, next) => {
+exports.login = async (req, res, next) => {
 	const { username, password } = req.body;
 
 	if (!username || !password) {
@@ -61,14 +62,14 @@ exports.login = (req, res, next) => {
 			if (!isEqual) {
 				return res.status(401).send({ error: true, message: 'Passwords do not match!' })
 			}
-			jwt.sign({
-				username: returnedUser.username,
-				userId: returnedUser._id.toString()
-			}, 'ZORmyTNgrMCClPb6rPuX', { expiresIn: '1d' }, function (err, token) {
-				res.status(200).json({ message: "Logged in!", token: token, user: {
+			const authenticationToken = await createAuthenticateToken(returnedUser);
+			res.status(200).json({ 
+				message: "Logged in!", 
+				token: authenticationToken, 
+				user: {
 					id: returnedUser._id.toString(),
 					username: returnedUser.username
-				} });
+				}
 			});
 		})
 	}).catch(err => {
@@ -96,4 +97,15 @@ exports.instructions = (req, res, next) => {
 			}
 		}
 	})
+}
+
+function createAuthenticateToken(returnedUser) {
+	return jwt.sign({
+		username: returnedUser.username,
+		userId: returnedUser._id.toString()
+	}, env.jwtsecret, { 
+		expiresIn: '1d',
+		algorithm: 'HS256',
+
+	});
 }
