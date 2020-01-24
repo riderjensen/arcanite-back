@@ -3,11 +3,12 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 
+const checkJwt = require('../../middleware/auth');
+
 const { jwtsecret } = require('../../../env').env;
 
 exports.signup = (req, res, next) => {
 	const { email, username, password } = req.body;
-
 	if (!email || !username || !password) {
 		return res.status(401).send({ error: true, requiredAttributes: {
 			emailPresent: email !== undefined ? true : false,
@@ -89,6 +90,11 @@ exports.instructions = (req, res, next) => {
 			}
 		}
 	})
+}
+
+exports.checkAuth = (req, res, next) => {
+	req.checkAuth = true;
+	checkJwt(req, res, next);
 }
 
 function createAuthenticateToken(returnedUser) {
