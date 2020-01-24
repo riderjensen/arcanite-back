@@ -18,6 +18,9 @@ exports.comment = (req, res, next) => {
 			if (!returnedPost) {
 				res.status(401).send({ error: true, message: 'There is no post related to that ID!' })
 			}
+			if (returnedPost.user !== username) {
+				res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
+			}
 			const comment = new Comment({
 				content: content,
 				user: username,
@@ -55,6 +58,7 @@ exports.voteComment = (req, res, next) => {
 }
 
 exports.editComment = (req, res, next) => {
+	const { username } = req;
 	const id = req.params.id;
 	const { content } = req.body;
 
@@ -68,6 +72,9 @@ exports.editComment = (req, res, next) => {
 		Comment.findById(id).then(comment => {
 			if (!comment) {
 				return res.status(404).json({ error: true, message: 'Could not find the comment'})
+			}
+			if (comment.user !== username) {
+				res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
 			}
 			comment.edited = true;
 			comment.content = content;
@@ -83,18 +90,28 @@ exports.editComment = (req, res, next) => {
 }
 
 exports.deleteComment = (req, res, next) => {
+	const { username } = req;
 	const id = req.params.id;
 
+	if (comment.user !== username) {
+		res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
+	}
+
 	if (mongoose.Types.ObjectId.isValid(id)) {
-		Comment.findByIdAndDelete(id).then(comment => {
+		Comment.findById(id).then(comment => {
 			if (!comment) {
 				return res.status(404).json({ error: true, message: 'Could not find the comment'})
 			}
-			Post.findOne(comment.parent).then(post => {
-				const index = post.comments.indexOf(comment.parent);
-				post.comments.splice(index, 1);
-				post.save().then(_ => {
-					res.status(201).json({ message: 'Comment deleted' })
+			if (comment.user !== username) {
+				res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
+			}
+			Comment.findByIdAndDelete(id).then(comment => {
+				Post.findOne(comment.parent).then(post => {
+					const index = post.comments.indexOf(comment.parent);
+					post.comments.splice(index, 1);
+					post.save().then(_ => {
+						res.status(201).json({ message: 'Comment deleted' })
+					})
 				})
 			})
 		}).catch(err => {
