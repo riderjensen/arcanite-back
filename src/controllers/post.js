@@ -57,6 +57,24 @@ exports.getOnePost = (req, res, next) => {
 	}
 }
 
+exports.getUserPostsAndComments = (req, res, next) => {
+	const { username } = req;
+
+	Post.find({ user: username }).then(posts => {
+		Comment.find({ user: username }).then(comments => {
+			const combinedPostsAndComments = [...posts, ...comments]
+			res.status(200).send({
+				posts: combinedPostsAndComments
+			})
+		}).catch(err => {
+		next(err);
+		})
+	}).catch(err => {
+		next(err);
+	})
+
+}
+
 exports.votePost = (req, res, next) => {
 	const id = req.params.id;
 
