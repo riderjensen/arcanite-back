@@ -7,11 +7,10 @@ const mongoose = require('mongoose');
 exports.addPost = (req, res, next) => {
 	const { username } = req;
 	const { content } = req.body;
-	
 	if (!content || !username) {
 		return res.status(401).send({ error: true, requiredAttributes: {
-			usernamePresent: username !== undefined ? true : false,
-			contentPresent: content !== undefined ? true : false
+			usernamePresent: username !== undefined || username !== '' ? true : false,
+			contentPresent: content !== undefined || content !== '' ? true : false
 		}, message: 'Missing required attributes' });
 	}
 
