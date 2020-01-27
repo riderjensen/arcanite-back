@@ -105,7 +105,7 @@ exports.editPost = (req, res, next) => {
 			if (!post) {
 				return res.status(404).json({ error: true, message: 'Could not find the post'})
 			}
-			if (post.username !== username) {
+			if (post.user !== username) {
 				return res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
 			}
 			post.edited = true;
