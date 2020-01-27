@@ -20,9 +20,6 @@ exports.comment = (req, res, next) => {
 			if (!returnedPost) {
 				res.status(401).send({ error: true, message: 'There is no post related to that ID!' })
 			}
-			if (returnedPost.user !== username) {
-				return res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
-			}
 			const comment = new Comment({
 				content: content,
 				user: username,
