@@ -4,18 +4,19 @@ const Post = require('../models/post');
 const mongoose = require('mongoose');
 
 exports.comment = (req, res, next) => {
+	const id = req.params.id;
 	const { username } = req;
-	const { postId, content } = req.body;
+	const { content } = req.body;
 
-	if (!postId || !username || !content) {
+	if (!id || !username || !content) {
 		return res.status(401).send({ error: true, requiredAttributes: {
-			postIdPresent: postId !== undefined ? true : false,
+			postIdPresent: id !== undefined ? true : false,
 			usernamePresent: username !== undefined ? true : false,
 			contentPresent: content !== undefined ? true : false
 		}, message: 'Missing required attributes' });
 	}
-	if (mongoose.Types.ObjectId.isValid(postId)) {
-		Post.findById(postId).then(returnedPost => {
+	if (mongoose.Types.ObjectId.isValid(id)) {
+		Post.findById(id).then(returnedPost => {
 			if (!returnedPost) {
 				res.status(401).send({ error: true, message: 'There is no post related to that ID!' })
 			}
@@ -25,13 +26,13 @@ exports.comment = (req, res, next) => {
 			const comment = new Comment({
 				content: content,
 				user: username,
-				parent: postId
+				parent: id
 			});
 	
 			comment.save().then(returnedComment => {
 				returnedPost.comments.push(mongoose.Types.ObjectId(returnedComment._id))
 				returnedPost.save().then(savedPost => {
-					res.status(201).send({ message: 'Comment created!' });
+					res.status(201).send(savedPost);
 				})
 			})
 		}).catch(err => {

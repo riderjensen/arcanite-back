@@ -4,7 +4,7 @@ const router = express.Router();
 
 const controller = require('../controllers/comment');
 
-router.route('/').post(controller.comment);
+router.route('/:id').post(controller.comment);
 router.route('/v/:id').get(controller.voteComment);
 router.route('/:id').patch(controller.editComment);
 router.route('/:id').delete(controller.deleteComment);
