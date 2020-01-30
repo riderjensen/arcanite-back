@@ -14,6 +14,11 @@ exports.addPost = (req, res, next) => {
 		}, message: 'Missing required attributes' });
 	}
 
+	const myTrimmedContent = content.trim();
+	if (myTrimmedContent.length > 250) {
+		return res.status(401).send({ error: true, message: 'Post too long' });
+	}
+
 	User.findOne({ username: username }).then(returnedUser => {
 		if (!returnedUser) {
 			res.status(401).send({ error: true, message: 'No user with this username exists!' })
@@ -60,8 +65,8 @@ exports.getOnePost = (req, res, next) => {
 exports.getUserPostsAndComments = (req, res, next) => {
 	const { username } = req;
 
-	Post.find({ user: username }).then(posts => {
-		Comment.find({ user: username }).then(comments => {
+	Post.find({ user: username }).sort({createdAt: -1}).then(posts => {
+		Comment.find({ user: username }).sort({createdAt: -1}).then(comments => {
 			const combinedPostsAndComments = [...posts, ...comments]
 			res.status(200).send({
 				posts: combinedPostsAndComments
@@ -130,8 +135,17 @@ exports.deletePost = (req, res, next) => {
 			if (!post) {
 				return res.status(404).json({ error: true, message: 'Could not find the post'})
 			}
-			if (post.username !== username) {
+			if (post.user !== username) {
 				return res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
+			}
+			if (post.content === 'Content deleted by User') {
+				Post.findByIdAndDelete(id).then(post => {
+					Comments.deleteMany({id: { $in: post.comments}}).then(resp => {
+						return res.status(202).json({ message: 'Post deleted' })
+					})
+				}).catch(err => {
+					next(err);
+				})
 			}
 			post.content = 'Content deleted by User';
 			post.save().then(_ => {

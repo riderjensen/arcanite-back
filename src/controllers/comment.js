@@ -15,6 +15,11 @@ exports.comment = (req, res, next) => {
 			contentPresent: content !== undefined ? true : false
 		}, message: 'Missing required attributes' });
 	}
+	const myTrimmedContent = content.trim();
+	if (myTrimmedContent.length > 250) {
+		return res.status(401).send({ error: true, message: 'Comment too long' });
+	}
+
 	if (mongoose.Types.ObjectId.isValid(id)) {
 		Post.findById(id).then(returnedPost => {
 			if (!returnedPost) {
@@ -92,10 +97,6 @@ exports.editComment = (req, res, next) => {
 exports.deleteComment = (req, res, next) => {
 	const { username } = req;
 	const id = req.params.id;
-
-	if (comment.user !== username) {
-		res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
-	}
 
 	if (mongoose.Types.ObjectId.isValid(id)) {
 		Comment.findById(id).then(comment => {
