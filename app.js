@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const fs = require('fs');
 
-const port = process.env.port || 8080;
+const port = process.env.PORT || 8080;
 
 const auth = require('./middleware/auth');
 
