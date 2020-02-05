@@ -10,12 +10,7 @@ const auth = require('./middleware/auth');
 
 const app = express();
 
-const corsOptions = {
-	origin: 'http://localhost:3000',
-	optionsSuccessStatus: 200
-}
-
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(bodyParser.json());
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
