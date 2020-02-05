@@ -4,9 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const fs = require('fs');
 
-const { username, password } = require('../env').env;
-
-const port = 8080;
+const port = process.env.port || 8080;
 
 const auth = require('./middleware/auth');
 
@@ -55,7 +53,7 @@ app.use((error, req, res, next) => {
 	});
 });
 
-mongoose.connect(`mongodb+srv://${username}:${password}@arcanite-storage-tmu2x.mongodb.net/arcanite?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true }).then(result => app.listen(port, () => {
+mongoose.connect(`mongodb+srv://${process.env.DBusername}:${process.env.DBpassword}@arcanite-storage-tmu2x.mongodb.net/arcanite?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true }).then(result => app.listen(port, () => {
     console.log(`Running on ${port}`);
 })).catch(err => {
     console.log(err);
