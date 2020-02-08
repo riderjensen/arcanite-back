@@ -40,7 +40,7 @@ app.use((error, req, res, next) => {
     const errorFile = 'error.txt';
 	const status = error.stausCode || 500;
     const data = error.data;
-
+	console.log(error)
     fs.appendFile(errorFile, `${error}\r\n`, () => {console.log('Error written')})
 	res.status(status).send({
 		message: error,
