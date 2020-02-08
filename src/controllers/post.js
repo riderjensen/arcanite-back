@@ -29,7 +29,7 @@ exports.addPost = (req, res, next) => {
 		});
 
 		post.save().then(returnedPost => {
-			res.status(201).send({ message: 'Post created!' })
+			res.status(201).send({ post: returnedPost })
 		})
 	}).catch(err => {
 		next(err);
