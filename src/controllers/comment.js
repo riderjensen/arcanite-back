@@ -63,7 +63,7 @@ exports.voteComment = (req, res, next) => {
 }
 
 
-exports.voteComment = (req, res, next) => {
+exports.unVoteComment = (req, res, next) => {
 	const id = req.params.id;
 
 	if (mongoose.Types.ObjectId.isValid(id)) {
