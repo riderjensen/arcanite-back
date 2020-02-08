@@ -159,7 +159,7 @@ exports.deletePost = (req, res, next) => {
 				return res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
 			}
 			Post.findByIdAndDelete(id).then(retPost => {
-				Comments.deleteMany({id: { $in: retPost.comments}}).then(resp => {
+				Comment.deleteMany({id: { $in: retPost.comments}}).then(resp => {
 					return res.status(202).json({ message: 'Post deleted' })
 				})
 			}).catch(err => {
