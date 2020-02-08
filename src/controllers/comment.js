@@ -129,7 +129,7 @@ exports.deleteComment = (req, res, next) => {
 					const index = post.comments.indexOf(comment.parent);
 					post.comments.splice(index, 1);
 					post.save().then(_ => {
-						res.status(201).json({ message: 'Comment deleted' })
+						res.status(201).json({ message: 'Comment deleted', id: comment._id })
 					})
 				})
 			})

@@ -160,7 +160,7 @@ exports.deletePost = (req, res, next) => {
 			}
 			Post.findByIdAndDelete(id).then(retPost => {
 				Comment.deleteMany({id: { $in: retPost.comments}}).then(resp => {
-					return res.status(202).json({ message: 'Post deleted' })
+					return res.status(202).json({ message: 'Post deleted', id: retPost._id })
 				})
 			}).catch(err => {
 				next(err);
