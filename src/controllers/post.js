@@ -138,18 +138,12 @@ exports.deletePost = (req, res, next) => {
 			if (post.user !== username) {
 				return res.status(401).json({ error: true, message: 'You are not authorized to perform this action' })
 			}
-			if (post.content === 'Content deleted by User') {
-				Post.findByIdAndDelete(id).then(post => {
-					Comments.deleteMany({id: { $in: post.comments}}).then(resp => {
-						return res.status(202).json({ message: 'Post deleted' })
-					})
-				}).catch(err => {
-					next(err);
+			Post.findByIdAndDelete(id).then(post => {
+				Comments.deleteMany({id: { $in: post.comments}}).then(resp => {
+					return res.status(202).json({ message: 'Post deleted' })
 				})
-			}
-			post.content = 'Content deleted by User';
-			post.save().then(_ => {
-				res.status(201).json({ message: 'Post deleted' })
+			}).catch(err => {
+				next(err);
 			})
 		}).catch(err => {
 			next(err);
