@@ -100,6 +100,26 @@ exports.votePost = (req, res, next) => {
 	}
 }
 
+exports.unVotePost = (req, res, next) => {
+	const id = req.params.id;
+
+	if (mongoose.Types.ObjectId.isValid(id)) {
+		Post.findById(id).then(post => {
+			if (!post) {
+				return res.status(404).json({ error: true, message: 'Could not find the post'})
+			}
+			post.votes--;
+			post.save().then(_ => {
+				res.status(200).send({ post })
+			})
+		}).catch(err => {
+			next(err);
+		})
+	} else {
+		res.status(404).send({ error: true, message: 'Invalid ID' })
+	}
+}
+
 exports.editPost = (req, res, next) => {
 	const { username } = req;
 	const id = req.params.id;
