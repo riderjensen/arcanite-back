@@ -34,7 +34,7 @@ exports.comment = (req, res, next) => {
 			comment.save().then(returnedComment => {
 				returnedPost.comments.push(mongoose.Types.ObjectId(returnedComment._id))
 				returnedPost.save().then(savedPost => {
-					res.status(201).send(savedPost);
+					res.status(201).send(returnedComment);
 				})
 			})
 		}).catch(err => {
