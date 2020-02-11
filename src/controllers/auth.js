@@ -19,21 +19,28 @@ exports.signup = (req, res, next) => {
 		if (returnedUser) {
 			return res.status(401).send({ error: true, message: 'A user with this username already exists!' });
 		}
-		bcrypt.hash(password, bcrypt.genSaltSync(12), null, function (err, hashedPw) {
-			if (err) throw err;
-			const user = new User({
-				email: email,
-				password: hashedPw,
-				username: username
-			});
-			user.save().then( async (returnedUser) => {
-				const authenticationToken = await createAuthenticateToken(returnedUser);
-				res.status(200).json({ 
-					message: "Logged in!", 
-					token: authenticationToken,
-					user: username
+		User.findOne({ email: email}).then(returnedEmailUser => {
+			if (returnedEmailUser) {
+				return res.status(401).send({ error: true, message: 'A user with this email already exists!' });
+			}
+			bcrypt.hash(password, bcrypt.genSaltSync(12), null, function (err, hashedPw) {
+				if (err) throw err;
+				const user = new User({
+					email: email,
+					password: hashedPw,
+					username: username
 				});
+				user.save().then( async (returnedUser) => {
+					const authenticationToken = await createAuthenticateToken(returnedUser);
+					res.status(200).json({ 
+						message: "Logged in!", 
+						token: authenticationToken,
+						user: username
+					});
+				})
 			})
+		}).catch(err => {
+			next(err);
 		})
 	}).catch(err => {
 		next(err);
